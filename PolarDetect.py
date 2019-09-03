@@ -7,8 +7,8 @@ frontalface_location = 'haarcascade_frontalface_default.xml'
 polarbear_location = "polarbear.png"
 face_cascade = cv.CascadeClassifier(frontalface_location)
 cap = cv.VideoCapture(0)
-cap.set(cv.CAP_PROP_FRAME_WIDTH, 80)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT, 60)
+#cap.set(cv.CAP_PROP_FRAME_WIDTH, 80)
+#cap.set(cv.CAP_PROP_FRAME_HEIGHT, 60)
 cap.set(cv.CAP_PROP_FPS, 24)
 polarbear = cv.imread(polarbear_location, -1)
 
@@ -22,26 +22,18 @@ while (True):
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(
             gray, 
-            scaleFactor = 1.1, 
-            minNeighbors = 5,
+            scaleFactor = 1.2, 
+            minNeighbors = 3,
             minSize = (1, 1),
             flags = cv.CASCADE_SCALE_IMAGE
         )
 
     for (x,y,w,h) in faces:
-        bear = image_resize(bear.copy(), height = h)
+        bear = cv.resize(bear, (w, h))
         pb_h, pb_w, pb_c = bear.shape
-        width_mult = int(math.floor(0.4 * w))
-        height_mult = int(math.floor(0.4 * h))
-        
-
-        for i in range(0, pb_h):
-            for j in range(0, pb_w):
-                if bear[i, j][3] != 0:
-                    overlay[y + i - height_mult, x + j - width_mult] = bear[i, j]
-
-        cv.addWeighted(overlay, 1.0, frame, 1.0, 0, frame)
-        #cv.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+        overlay[y:y+h, x:x+w] = bear
+    
+    cv.addWeighted(overlay, 1.0, frame, 1.0, 0, frame)
         
     
     cv.imshow('Polarbear Detection',frame)
