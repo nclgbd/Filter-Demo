@@ -3,7 +3,7 @@ import math
 import cv2 as cv
 
 LOGITECH_CAMERA_PORT = 1
-frontalface_location = 'haarcascades/haarcascade_frontalface_default.xml'
+frontalface_location = 'haarcascades/haarcascade_frontalface_alt.xml'
 img_path = 'media/dog_filter_trans.png'
 face_cascade = cv.CascadeClassifier(frontalface_location)
 cap = cv.VideoCapture(LOGITECH_CAMERA_PORT)
@@ -24,8 +24,8 @@ while (True):
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(
             gray, 
-            scaleFactor = 1.4, 
-            minNeighbors = 2,
+            scaleFactor = 1.1, 
+            minNeighbors = 3,
             minSize=(30,30),
             flags = cv.CASCADE_SCALE_IMAGE
         )
@@ -44,15 +44,21 @@ while (True):
     '''
     
     for (x,y,w,h) in faces:
-        # print(x)
         w = int(1.5 * w)
         h = int(1.75 * h)
         y = y - int(0.375 * h)
         x = x - int(0.15 * w)
         c_filter_img = cv.resize(c_filter_img, (w, h))
+        
         if c_filter_img.shape == overlay[y:y+h, x:x+w].shape:
             overlay[y:y+h, x:x+w] = c_filter_img
-            
+        ''' 
+        if len(faces) > 0:
+            for pixels in overlay[y:y+h, x:x+w]:
+                for pixel in pixels:
+                    if pixel[3] == 0:
+                        frame[pixel][0] = 0
+        '''                           
     cv.addWeighted(overlay, 1.0, frame, 1.0, 0, dst=frame)
      
     
